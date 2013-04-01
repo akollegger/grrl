@@ -55,7 +55,7 @@ grrl_handle() {
   CMD=${CMD[0]}
   FOUND_SCRIPT=$(find_cypher_script ${CMD})
   if is_cypher "${CMD}" ; then
-    grrl_post "${CMD}"
+    grrl_post "${1}"
   elif [ ! $FOUND_SCRIPT = "" ]; then
     exec 4<&0
     exec < $FOUND_SCRIPT
