@@ -1,0 +1,19 @@
+#!/bin/sh
+
+
+GRRL_DIR="${HOME}/.grrl"
+BIN_DIR="${HOME}/bin/"
+
+if [ -d "${BIN_DIR}" ]; then 
+  cp -r bin/* "${BIN_DIR}"
+else
+  echo "Install directory ${BIN_DIR} doesn't exist."
+  echo "Should grrl be installed somewhere else?"
+fi
+
+if [ ! -d "${GRRL_DIR}" ]; then
+  mkdir "${GRRL_DIR}"
+fi
+
+cp -r etc/* "${GRRL_DIR}"
+
