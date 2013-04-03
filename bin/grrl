@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 GRRL_HOME=${GRRL_HOME:-${HOME}/.grrl}
 
@@ -32,22 +32,25 @@ DEFAULT_URL="http://localhost:7474/db/data/cypher"
 CYPHER_URL=${CYPHER_URL:-${DEFAULT_URL}}
 
 ACCEPT_TYPE="application/json"
-CURL_OPTS="-X POST --fail --silent --show-error --header Content-Type:application/json"
+CURL_OPTS=${CURL_OPTS:-"--silent --show-error --fail"}
+CURL_OPTS="${CURL_OPTS} -X POST --header Content-Type:application/json"
 PIPE_ACCEPT=${PIPE_ACCEPT:-"application/json"}
 ONESHOT_ACCEPT=${ONESHOT_ACCEPT:-"text/plain"}
 REPL_ACCEPT=${REPL_ACCEPT:-"text/plain"}
 GRRL_PROMPT=${GRRL_PROMPT:-"--> "}
 CYPHER_SCRIPT_DIR=${CYPHER_SCRIPT_DIR:-". "}
+VERBOSE=${VERBOSE:=false}
 
 ###
 # Grrl Power
 
 grrl_post() {
   local cql="$*"
-  local json="{ \"query\": \"${cql//\"/\\\"}\", \"params\": { \"uid\": \"ee\"} }"
-  set -x
+  local params=$( jsonify "${DEFINITIONS[@]}" )
+  local json="{ \"query\": \"${cql//\"/\\\"}\", \"params\": ${params} }"
+  if $VERBOSE; then set -x; fi
   curl ${CURL_OPTS} --data "${json}" ${CYPHER_URL}
-  set +x
+  if $VERBOSE; then set +x; fi
 }
 
 grrl_handle() {
@@ -62,7 +65,7 @@ grrl_handle() {
     grrl_pipe
     exec 0<&4 4<&-
   else
-    echo "Skipping: ${CMD}"
+    echo "Ignoring: ${CMD}"
   fi
 
 }
@@ -70,12 +73,16 @@ grrl_handle() {
 grrl_pipe() {
   local multiline=""
   while read line || [ -n "$line" ]; do
-    multiline=$(trim "${multiline} ${line}")
-    if [[ "${multiline: -1:1}" = ";" ]]; then
-      cql=$( remove_semicolon "${multiline}" )
-      grrl_post "${cql}"
-      multiline=""
-      echo ""
+    if ! is_comment "${line}"; then
+      multiline=$(trim "${multiline} ${line}")
+      if [[ "${multiline: -1:1}" = ";" ]]; then
+        cql=$( remove_semicolon "${multiline}" )
+        grrl_post "${cql}"
+        multiline=""
+        echo ""
+      fi
+    else
+      if $VERBOSE; then echo "${line}"; fi
     fi
   done
 }
@@ -91,6 +98,26 @@ grrl_repl() {
 
 ###
 # utility functions
+
+jsonify() {
+  local source_array=( "${@}" )
+  local as_json="{"
+  local comma=""
+  for pair in "${source_array[@]}"; do
+    OIFS=$IFS
+    IFS='='
+    split=( $pair )
+    as_json="${as_json}${comma} \"${split[0]}\" : \"${split[1]}\"" 
+    comma=","
+    IFS=$OIFS
+  done
+  echo "${as_json} }"
+}
+
+is_comment() {
+  [[ $1 == \#* ]] && return 0
+  return 1
+}
 
 is_cypher() {
   local e
@@ -123,6 +150,20 @@ remove_semicolon() {
 
 ###
 # main, figure out context and args
+
+declare -a DEFINITIONS
+while getopts ":d:D:v" Option
+do
+  case $Option in
+    d | D )
+      DEFINITIONS=( ${DEFINITIONS} $OPTARG )
+      ;;
+    v )
+      VERBOSE=true
+  esac
+done
+
+shift $(($OPTIND - 1))
 
 if [ $# -gt 0 ]; then
   CURL_OPTS="${CURL_OPTS} --header Accept:${ONESHOT_ACCEPT}"
