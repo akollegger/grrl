@@ -33,7 +33,7 @@ DEFAULT_URL="http://localhost:7474/db/data/cypher"
 CYPHER_URL=${CYPHER_URL:-${DEFAULT_URL}}
 
 ACCEPT_TYPE="application/json"
-CURL_OPTS=${CURL_OPTS:-"--silent --show-error --fail"}
+CURL_OPTS=${CURL_OPTS:-"--show-error "}
 CURL_OPTS="${CURL_OPTS} -X POST --header Content-Type:application/json"
 PIPE_ACCEPT=${PIPE_ACCEPT:-"application/json"}
 ONESHOT_ACCEPT=${ONESHOT_ACCEPT:-"text/plain"}
@@ -206,8 +206,15 @@ do
       ;;
     v )
       VERBOSE=true
+      ;;
   esac
 done
+
+if ${VERBOSE} ; then 
+  CURL_OPTS="${CURL_OPTS} --verbose "
+else 
+  CURL_OPTS="${CURL_OPTS} --silent --fail "
+fi
 
 shift $(($OPTIND - 1))
 
