@@ -45,6 +45,22 @@ VERBOSE=${VERBOSE:=false}
 ###
 # Grrl Power
 
+usage() {
+  echo "grrl [ -dvh ] [ 'cypher query' | file ... ]"
+  echo ""
+  echo "  GRaph cuRL sends Cypher queries to Neo4j."
+  echo "  1) Without args, a repl starts."
+  echo "  2) Provided args are interpreted as either"
+  echo "     complete Cypher queries, or script files "
+  echo "     (with explicit or assumed \".cypher\" extension)."
+  echo "  3) Piped input is treated like a script file."
+  echo ""
+  echo "  Options:"
+  echo "  -d Pass in a name=value pair to parameterize Cypher"
+  echo "  -v Verbose posting of scripts (helpful for debugging)"
+  echo "  -h Usage, grrl!"
+}
+
 grrl_post() {
   local cql="$*"
   local params=$( jsonify "${DEFINITIONS[@]}" )
@@ -59,7 +75,9 @@ grrl_handle() {
   for cmd in "${@}" ; do
     echo "$delim "
     FOUND_SCRIPT=$(find_cypher_script ${cmd})
-    if is_cypher "${cmd}" ; then
+    if [[ ${cmd} == "help" ]]; then
+      usage
+    elif is_cypher "${cmd}" ; then
       echo "{ \"query\" : \"${cmd//\"/\u0022}\","
       echo "\"results\" : [ "
       grrl_post "${cmd}"
@@ -176,11 +194,15 @@ remove_semicolon() {
 # main, figure out context and args
 
 declare -a DEFINITIONS
-while getopts ":d:D:v" Option
+while getopts ":d:D:hv" Option
 do
   case $Option in
     d | D )
       DEFINITIONS=( ${DEFINITIONS} $OPTARG )
+      ;;
+    h | H )
+      usage
+      exit 0
       ;;
     v )
       VERBOSE=true
