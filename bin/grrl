@@ -55,35 +55,51 @@ grrl_post() {
 }
 
 grrl_handle() {
-  local CMD=( ${1} )
-  CMD=${CMD[0]}
-  FOUND_SCRIPT=$(find_cypher_script ${1})
-  if is_cypher "${CMD}" ; then
+  local CMDS=( ${1} )
+  FOUND_SCRIPT=$(find_cypher_script ${CMDS[0]})
+  if is_cypher "${CMDS[0]}" ; then
     grrl_post "${1}"
   elif [ ! $FOUND_SCRIPT = "" ]; then
-    exec 4<&0
-    exec < $FOUND_SCRIPT
-    grrl_pipe
-    exec 0<&4 4<&-
+    # found 1, assume all args are scripts
+    grrl_scripts "${@}"
   else
     echo "Ignoring: ${1}"
   fi
 
 }
 
+grrl_scripts() {
+  local delim="["
+  exec 4<&0
+  for script in ${@}; do
+    echo "$delim "
+    echo "{ \"src\" : \"${script}\","
+    echo "\"results\" : [ "
+    exec < $(find_cypher_script ${script})
+    grrl_pipe
+    echo "]"
+    echo "}"
+    delim=", "
+  done
+  echo "]"
+  exec 0<&4 4<&-
+}
+
 grrl_pipe() {
   local multiline=""
+  local delim=""
   while read line || [ -n "$line" ]; do
     if ! is_comment "${line}"; then
       multiline=$(trim "${multiline} ${line}")
       if [[ "${multiline: -1:1}" = ";" ]]; then
+        echo "${delim}"
         cql=$( remove_semicolon "${multiline}" )
         grrl_post "${cql}"
         multiline=""
-        echo ""
+        delim=", "
       fi
     else
-      if $VERBOSE; then echo "${line}"; fi
+      if $VERBOSE; then echo "${line}" >&2 ;  fi
     fi
   done
 }
