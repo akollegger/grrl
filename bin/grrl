@@ -57,7 +57,7 @@ grrl_post() {
 grrl_handle() {
   local CMD=( ${1} )
   CMD=${CMD[0]}
-  FOUND_SCRIPT=$(find_cypher_script ${CMD})
+  FOUND_SCRIPT=$(find_cypher_script ${1})
   if is_cypher "${CMD}" ; then
     grrl_post "${1}"
   elif [ ! $FOUND_SCRIPT = "" ]; then
@@ -130,7 +130,11 @@ is_cypher() {
 }
 
 find_cypher_script() {
-  echo $(find ${CYPHER_SCRIPT_DIR} -name "${1}.cypher" | head -1)
+  local script="${1}"
+  if [[ ! -f "${script}" ]]; then
+    script=$( find ${CYPHER_SCRIPT_DIR} -name "${1}.cypher" | head -1 )
+  fi
+  echo "${script}"
 }
 
 trim() {
