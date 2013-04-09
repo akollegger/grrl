@@ -40,6 +40,7 @@ ONESHOT_ACCEPT=${ONESHOT_ACCEPT:-"text/plain"}
 REPL_ACCEPT=${REPL_ACCEPT:-"text/plain"}
 GRRL_PROMPT=${GRRL_PROMPT:-"--> "}
 CYPHER_SCRIPT_DIR=${CYPHER_SCRIPT_DIR:-". "}
+GLOBAL_GRAPHLETS=${GLOBAL_GRAPHLETS:-$GRRL_HOME"/graphlets/"}
 VERBOSE=${VERBOSE:=false}
 
 ###
@@ -166,8 +167,12 @@ is_cypher() {
 
 find_cypher_script() {
   local script="${1}"
+  # TODO: change this into a search path, loop through that
   if [[ ! -f "${script}" ]]; then
     script=$( find ${CYPHER_SCRIPT_DIR} -name "${1}.cypher" | head -1 )
+  fi
+  if [[ ! -f "${script}" ]]; then
+    script=$( find ${GLOBAL_GRAPHLETS} -name "${1}.cypher" | head -1 )
   fi
   echo "${script}"
 }

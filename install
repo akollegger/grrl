@@ -17,3 +17,4 @@ fi
 
 cp -r etc/* "${GRRL_DIR}"
 
+cp -r graphlets "${GRRL_DIR}/"
