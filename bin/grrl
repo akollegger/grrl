@@ -50,6 +50,7 @@ usage() {
   echo "grrl [ -dvh ] [ 'cypher query' | file ... ]"
   echo ""
   echo "  GRaph cuRL sends Cypher queries to Neo4j."
+  echo ""
   echo "  1) Without args, a repl starts."
   echo "  2) Provided args are interpreted as either"
   echo "     complete Cypher queries, or script files "
