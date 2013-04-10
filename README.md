@@ -15,3 +15,26 @@ Grrl is a bash client for Neo4j.
   - `grrl all` could find `src/main/cypher/all.cypher` and run it
 - pass key-value definitions in to parameterize Cypher
   - `grrl -Duid=abk find_user_by_uid`
+
+## Basic Usage
+
+```bash
+grrl [ -dvh ] [ 'cypher query' | file ... ]
+
+  GRaph cuRL sends Cypher queries to Neo4j.
+  1) Without args, a repl starts.
+  2) Provided args are interpreted as either
+     complete Cypher queries, or script files 
+     (with explicit or assumed ".cypher" extension).
+  3) Piped input is treated like a script file.
+
+  Options:
+  -d Pass in a name=value pair to parameterize Cypher
+  -v Verbose posting of scripts (helpful for debugging)
+  -h Usage, grrl!
+```
+
+- `grrl clear` to delete everything but the hallowed node 0
+- `grrl all` to get all nodes, relationships and typelabels
+- `grrl <filename>` to post a cypher script
+- `grrl "<cypher query>"` to post an ad-hoc query
