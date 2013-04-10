@@ -123,6 +123,10 @@ grrl_pipe() {
       if $VERBOSE; then echo "${line}" >&2 ;  fi
     fi
   done
+  if [[ ! "$multiline" == "" ]]; then
+    # post unterminated query
+    grrl_post "${multiline}"
+  fi
 }
 
 grrl_repl() {
