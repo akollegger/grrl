@@ -3,6 +3,9 @@ Grrl! Graph+Curl
 
 Grrl is a bash client for Neo4j. 
 
+Why not just use Neo4j's shell? Because grrl doesn't care what version of Neo4j you are using (or even that it is talking to Neo4j).
+Grrl just wants to integrate well on the command line. 
+
 ## Features
 
 - one-shot queries `grrl "MATCH (n)--(m) WHERE n.name=\"grrl\""`

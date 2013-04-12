@@ -1,0 +1,1 @@
+buffer responses to tmp file, only echo on any (at least 1) success

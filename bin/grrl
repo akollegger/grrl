@@ -40,7 +40,7 @@ ONESHOT_ACCEPT=${ONESHOT_ACCEPT:-"text/plain"}
 REPL_ACCEPT=${REPL_ACCEPT:-"text/plain"}
 GRRL_PROMPT=${GRRL_PROMPT:-"--> "}
 CYPHER_SCRIPT_DIR=${CYPHER_SCRIPT_DIR:-". "}
-GLOBAL_GRAPHLETS=${GLOBAL_GRAPHLETS:-$GRRL_HOME"/graphlets/"}
+GLOBAL_CYPHERS=${GLOBAL_CYPHERS:-$GRRL_HOME"/cyphers/"}
 VERBOSE=${VERBOSE:=false}
 
 ###
@@ -177,7 +177,7 @@ find_cypher_script() {
     script=$( find ${CYPHER_SCRIPT_DIR} -name "${1}.cypher" | head -1 )
   fi
   if [[ ! -f "${script}" ]]; then
-    script=$( find ${GLOBAL_GRAPHLETS} -name "${1}.cypher" | head -1 )
+    script=$( find ${GLOBAL_CYPHERS} -name "${1}.cypher" | head -1 )
   fi
   echo "${script}"
 }
